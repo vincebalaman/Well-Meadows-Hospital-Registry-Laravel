@@ -18,6 +18,11 @@
                     <x-nav-link :href="route('patients.index')" :active="request()->routeIs('patients.*')">
                         {{ __('Patients') }}
                     </x-nav-link>
+                    @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'staff']))
+                        <x-nav-link :href="route('staffs.index')" :active="request()->routeIs('staffs.*')">
+                            {{ __('Staff') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
