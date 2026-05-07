@@ -63,3 +63,17 @@ git push origin branch_name
 
 ## SETTING UP POSTGRESQL AS DATABASE <p id="setup"></p>
 for easier set up watch this <a href="https://www.youtube.com/watch?v=vrJUMNXgppw">video</a> and follow its instructions
+
+## SET UP MIGRATIONS AND SEEDS
+
+**1. Migrate**
+After setting up the database, migrate all the current migrations:
+```bash
+php artisan migrate
+```
+
+**2. Seeding**
+After after migrating you need to run the seeding to populate the tables with constant datas:
+```bash
+php artisan db:seed
+```
