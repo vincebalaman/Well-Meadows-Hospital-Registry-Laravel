@@ -15,14 +15,27 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('patients.index')" :active="request()->routeIs('patients.*')">
-                        {{ __('Patients') }}
-                    </x-nav-link>
-                    @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'staff']))
-                        <x-nav-link :href="route('staffs.index')" :active="request()->routeIs('staffs.*')">
-                            {{ __('Staff') }}
+
+                    @auth
+                        <x-nav-link :href="route('patients.index')" :active="request()->routeIs('patients.*')">
+                            {{ __('Patients') }}
                         </x-nav-link>
-                    @endif
+                        <x-nav-link :href="route('appointments.index')" :active="request()->routeIs('appointments.*')">
+                            {{ __('Appointments') }}
+                        </x-nav-link>
+
+                        @if (auth()->user()->isStaff())
+                            <x-nav-link :href="route('clinical-records.index')" :active="request()->routeIs('clinical-records.*')">
+                                {{ __('Clinical Records') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('staff-assignments.index')" :active="request()->routeIs('staff-assignments.*')">
+                                {{ __('Assignments') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('patient-history.index')" :active="request()->routeIs('patient-history.*')">
+                                {{ __('Patient History') }}
+                            </x-nav-link>
+                        @endif
+                    @endauth
                 </div>
             </div>
 
