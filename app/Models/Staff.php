@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\StaffAllocation;
+use App\Models\StaffContract;
 use Illuminate\Database\Eloquent\Model;
 
 class Staff extends Model
@@ -31,4 +33,14 @@ class Staff extends Model
     protected $casts = [
         'dob' => 'date',
     ];
+
+    public function contract()
+    {
+        return $this->hasOne(StaffContract::class, 'staff_no', 'staff_no');
+    }
+
+    public function allocations()
+    {
+        return $this->hasMany(StaffAllocation::class, 'staff_no', 'staff_no');
+    }
 }
