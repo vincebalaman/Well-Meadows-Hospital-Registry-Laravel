@@ -33,9 +33,8 @@ return new class extends Migration
                 ward_id INT PRIMARY KEY,
                 ward_name VARCHAR(100) NOT NULL,
                 location VARCHAR(50),
-                total_beds INT,
+                total_beds INT NOT NULL DEFAULT 0,
                 tel_extn VARCHAR(10),
-                budget INT,
                 charge_nurse_id VARCHAR(10) REFERENCES Staff(staff_no)
             );
 
@@ -44,6 +43,8 @@ return new class extends Migration
                 bed_id SERIAL PRIMARY KEY,
                 ward_id INT REFERENCES Wards(ward_id),
                 bed_number INT NOT NULL, 
+                status VARCHAR(20) DEFAULT 'Available' 
+                    CHECK (status IN ('Available', 'Occupied')),
                 UNIQUE(ward_id, bed_number)
             );
 

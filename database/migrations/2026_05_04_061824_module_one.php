@@ -29,6 +29,76 @@ return new class extends Migration
                 VALUES (p_no, nok_name, nok_rel, nok_tel);
             END;
             $$;
+
+            CREATE OR REPLACE PROCEDURE add_patient_medication(
+                p_stay_id INT, p_drug_no VARCHAR(10), p_units INT, p_start DATE, p_finish DATE
+            )
+            LANGUAGE plpgsql
+            AS $$
+            BEGIN
+                -- Validation: Check if it's a pharmaceutical item
+                IF EXISTS (SELECT 1 FROM Pharmaceuticals WHERE drug_no = p_drug_no) THEN
+                    INSERT INTO Patient_Medication (stay_id, drug_no, units_per_day, start_date, finish_date)
+                    VALUES (p_stay_id, p_drug_no, p_units, p_start, p_finish);
+                ELSE
+                    RAISE EXCEPTION 'Item % is not a valid pharmaceutical drug.', p_drug_no;
+                END IF;
+            END;
+            $$;
+
+            CREATE OR REPLACE PROCEDURE request_ward_admission(
+                p_patient_no VARCHAR(10),
+                p_ward_id INT,
+                p_expected_duration INT
+            )
+            LANGUAGE plpgsql
+            AS $$
+            BEGIN
+                -- Check if the patient is already in an active stay to prevent double admission
+                IF EXISTS (SELECT 1 FROM In_Patient_Stays WHERE patient_no = p_patient_no AND actual_leave IS NULL) THEN
+                    RAISE EXCEPTION 'Patient % is already admitted or on a waiting list.', p_patient_no;
+                END IF;
+
+                -- Insert into stays with a NULL bed_no and 'Waiting' status
+                INSERT INTO In_Patient_Stays (
+                    patient_no, 
+                    ward_id, 
+                    bed_no, 
+                    date_placed_waiting, 
+                    expected_duration, 
+                    status
+                )
+                VALUES (
+                    p_patient_no, 
+                    p_ward_id, 
+                    NULL,
+                    CURRENT_DATE, 
+                    p_expected_duration, 
+                    'admitted'
+                );
+            END;
+            $$;
+
+            CREATE OR REPLACE PROCEDURE discharge_patient(p_stay_id INT)
+                LANGUAGE plpgsql
+                AS $$
+                DECLARE
+                    v_bed_id INT;
+                BEGIN
+                    -- 1. Find the bed associated with this stay
+                    SELECT bed_no INTO v_bed_id FROM In_Patient_Stays WHERE stay_id = p_stay_id;
+
+                    -- 2. Update the stay record
+                    UPDATE In_Patient_Stays 
+                    SET actual_leave = CURRENT_DATE, status = 'discharged'
+                    WHERE stay_id = p_stay_id;
+                    
+                    -- 3. Free up the bed
+                    IF v_bed_id IS NOT NULL THEN
+                        UPDATE Beds SET status = 'Available' WHERE bed_id = v_bed_id;
+                    END IF;
+                END;
+                $$;
         ");
     }
 
@@ -37,6 +107,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::unprepared("DROP PROCEDURE IF EXISTS register_patient;");
+        DB::unprepared("
+            DROP PROCEDURE IF EXISTS register_patient;
+            DROP PROCEDURE IF EXISTS add_patient_medication;
+            DROP PROCEDURE IF EXISTS request_ward_admission;
+            DROP PROCEDURE IF EXISTS discharge_patient;
+        ");
     }
 };

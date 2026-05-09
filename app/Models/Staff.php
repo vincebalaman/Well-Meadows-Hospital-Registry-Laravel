@@ -31,4 +31,10 @@ class Staff extends Model
     protected $casts = [
         'dob' => 'date',
     ];
+
+    public function contracts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        // A staff member might have multiple contracts over time (history)
+        return $this->hasMany(StaffContract::class, 'staff_no', 'staff_no');
+    }
 }

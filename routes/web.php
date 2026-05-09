@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\WardController;
+use App\Http\Controllers\StaffContractController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -18,13 +20,15 @@ Route::middleware('auth', 'role:admin,staff,patient')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::resource('patients', PatientController::class);
-    Route::resource('staffs', StaffController::class);
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:admin,staff'])->group(function () {
+    Route::resource('staffs', StaffController::class);
+    Route::resource('wards', WardController::class);
+    Route::resource('contracts', StaffContractController::class);
 });
 
 require __DIR__.'/auth.php';
