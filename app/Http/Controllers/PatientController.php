@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LocalDoctor;
 use App\Models\Patient;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class PatientController extends Controller
 {
@@ -14,7 +13,7 @@ class PatientController extends Controller
      */
     public function index()
     {
-        $patients = \App\Models\Patient::orderBy('date_registered', 'desc')->get();
+        $patients = Patient::all();
 
         return view('patients.index', compact('patients'));
     }
@@ -24,9 +23,11 @@ class PatientController extends Controller
      */
     public function create()
     {
-        // Fetch clinics to populate the dropdown in the form
-        $clinics = LocalDoctor::all(); 
-        return view('patients.create', compact('clinics'));
+        if (!in_array(Auth::user()?->role, ['admin', 'staff'])) {
+            abort(403, 'Unauthorized.');
+        }
+
+        return view('patients.create');
     }
 
     /**
@@ -34,28 +35,29 @@ class PatientController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            DB::statement("CALL register_patient(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
-                $request->patient_no,       // p_no
-                $request->first_name,       // p_fname
-                $request->last_name,        // p_lname
-                $request->address ?? 'N/A', // p_addr
-                $request->tel_no ?? 'N/A',  // p_tel
-                $request->dob,              // p_dob (Ensure format is YYYY-MM-DD)
-                $request->sex ?? 'M',       // p_sex
-                $request->marital_status,   // p_marital
-                $request->clinic_no,        // p_clinic
-                $request->nok_name,         // nok_name
-                $request->nok_relationship, // nok_rel
-                $request->nok_tel ?? 'N/A'  // nok_tel
-            ]);
-            return redirect()->route('patients.index')->with('success', 'Patient registered!');
-        } catch (\Exception $e) {
-            // This will catch things like Foreign Key errors (e.g., if clinic_no is invalid)
-            return redirect()->back()->withErrors(['error' => 'Database Error: ' . $e->getMessage()]);
+        if (!in_array(Auth::user()?->role, ['admin', 'staff'])) {
+            abort(403, 'Unauthorized.');
         }
-        
-        return redirect()->route('patients.index')->with('success', 'Patient registered successfully!');
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:patients,email',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+            'dob' => 'required|date',
+            'sex' => 'required|in:M,F',
+        ]);
+
+        Patient::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'dob' => $request->dob,
+            'sex' => $request->sex,
+        ]);
+
+        return redirect()->route('patients.index')->with('success', 'Patient added successfully!');
     }
 
     /**
@@ -71,7 +73,11 @@ class PatientController extends Controller
      */
     public function edit(Patient $patient)
     {
-        //
+        if (!in_array(Auth::user()?->role, ['admin', 'staff'])) {
+            abort(403, 'Unauthorized.');
+        }
+
+        return view('patients.edit', compact('patient'));
     }
 
     /**
@@ -79,7 +85,22 @@ class PatientController extends Controller
      */
     public function update(Request $request, Patient $patient)
     {
-        //
+        if (!in_array(Auth::user()?->role, ['admin', 'staff'])) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:patients,email,' . $patient->id,
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+            'dob' => 'required|date',
+            'sex' => 'required|in:M,F',
+        ]);
+
+        $patient->update($request->only(['name', 'email', 'phone', 'address', 'dob', 'sex']));
+
+        return redirect()->route('patients.index')->with('success', 'Patient updated successfully!');
     }
 
     /**
@@ -87,19 +108,12 @@ class PatientController extends Controller
      */
     public function destroy(Patient $patient)
     {
-        if (!in_array(auth()->user()->role, ['admin', 'staff'])) {
-            abort(403, 'Unauthorized action.');
+        if (!in_array(Auth::user()?->role, ['admin', 'staff'])) {
+            abort(403, 'Unauthorized.');
         }
 
-        try {
-            // 2. The Cascade (Delete the Next of Kin first, then the Patient)
-            // This works because you defined the relationship earlier
-            $patient->nextOfKin()->delete(); 
-            $patient->delete();
+        $patient->delete();
 
-            return redirect()->route('patients.index')->with('success', 'Patient and associated Next of Kin deleted.');
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => 'Delete failed: ' . $e->getMessage()]);
-        }
+        return redirect()->route('patients.index')->with('success', 'Patient deleted successfully!');
     }
 }
