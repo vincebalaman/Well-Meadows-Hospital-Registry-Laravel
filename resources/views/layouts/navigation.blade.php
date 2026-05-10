@@ -22,6 +22,9 @@
                         <x-nav-link :href="route('staffs.index')" :active="request()->routeIs('staffs.*')">
                             {{ __('Staff') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('wards.index')" :active="request()->routeIs('wards.*')">
+                            {{ __('Wards') }}
+                        </x-nav-link>
                     @endif
                 </div>
             </div>
@@ -78,6 +81,17 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('patients.index')" :active="request()->routeIs('patients.*')">
+                {{ __('Patients') }}
+            </x-responsive-nav-link>
+            @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'staff']))
+                <x-responsive-nav-link :href="route('staffs.index')" :active="request()->routeIs('staffs.*')">
+                    {{ __('Staff') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('wards.index')" :active="request()->routeIs('wards.*')">
+                    {{ __('Wards') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
