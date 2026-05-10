@@ -10,45 +10,34 @@
                     </a>
                 </div>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
 
-                    @auth
+            <!-- Navigation Links -->
+            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    {{ __('Dashboard') }}
+                </x-nav-link>
+
+                @auth
+                    @if (auth()->user()->isStaff())
                         <x-nav-link :href="route('patients.index')" :active="request()->routeIs('patients.*')">
                             {{ __('Patients') }}
                         </x-nav-link>
                         <x-nav-link :href="route('appointments.index')" :active="request()->routeIs('appointments.*')">
                             {{ __('Appointments') }}
                         </x-nav-link>
-
-                        <x-nav-link :href="route('patient-billing.index')" :active="request()->routeIs('patient-billing.*')">
-                            {{ __('Billing') }}
+                        <x-nav-link :href="route('clinical-records.index')" :active="request()->routeIs('clinical-records.*')">
+                            {{ __('Clinical Records') }}
                         </x-nav-link>
-
-                        @if (auth()->user()->isStaff())
-                            <x-nav-link :href="route('clinical-records.index')" :active="request()->routeIs('clinical-records.*')">
-                                {{ __('Clinical Records') }}
-                            </x-nav-link>
-
-                            <x-nav-link :href="route('staff-assignments.index')" :active="request()->routeIs('staff-assignments.*')">
-                                {{ __('Assignments') }}
-                            </x-nav-link>
-
-                            <x-nav-link :href="route('patient-history.index')" :active="request()->routeIs('patient-history.*')">
-                                {{ __('Patient History') }}
-                            </x-nav-link>
-
-                            <x-nav-link :href="route('reports.ward-occupancy')" :active="request()->routeIs('reports.*')">
-                                {{ __('Reports') }}
-                            </x-nav-link>
-                        @endif
-                    @endauth
-                </div>
+                        <x-nav-link :href="route('staff-assignments.index')" :active="request()->routeIs('staff-assignments.*')">
+                            {{ __('Assignments') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('patient-history.index')" :active="request()->routeIs('patient-history.*')">
+                            {{ __('Patient History') }}
+                        </x-nav-link>
+                    @endif
+                @endauth
             </div>
-                
+
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">

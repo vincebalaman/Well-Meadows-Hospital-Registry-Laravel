@@ -3,7 +3,6 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PatientController;
-use App\Http\Controllers\StaffController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ClinicalRecordController;
 use App\Http\Controllers\StaffPatientAssignmentController;
@@ -32,16 +31,18 @@ Route::middleware(['auth', 'role:admin,staff,patient'])->group(function () {
 
 // Admin only
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    //
+    // 
 });
 
 // Admin + Staff only
 Route::middleware(['auth', 'role:admin,staff'])->group(function () {
+    // Staff can edit/delete on patients & appointments
     Route::resource('patients', PatientController::class)
         ->only(['edit', 'update', 'destroy']);
     Route::resource('appointments', AppointmentController::class)
         ->only(['edit', 'update', 'destroy']);
-    Route::resource('staffs', StaffController::class);
+
+    // Fully staff-only modules
     Route::resource('clinical-records', ClinicalRecordController::class)
         ->parameters(['clinical-records' => 'clinicalRecord']);
     Route::resource('staff-assignments', StaffPatientAssignmentController::class)
