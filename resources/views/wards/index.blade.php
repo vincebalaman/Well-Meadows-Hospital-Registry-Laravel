@@ -3,7 +3,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h2 class="font-semibold text-xl text-gray-900 leading-tight">
-                    {{ __('Wards') }}
+                    {{ __('Assigned Staff to Ward') }}
                 </h2>
                 <p class="text-sm text-gray-500 mt-1">Manage ward names and prepare staff assignments.</p>
             </div>
