@@ -23,7 +23,7 @@
                             {{ __('Staff') }}
                         </x-nav-link>
                         <x-nav-link :href="route('wards.index')" :active="request()->routeIs('wards.*')">
-                            {{ __('Wards') }}
+                            {{ __('Assign Staff to Wards') }}
                         </x-nav-link>
                     @endif
                 </div>
