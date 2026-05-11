@@ -28,6 +28,9 @@
                         <x-nav-link :href="route('staffs.index')" :active="request()->routeIs('staffs.*')">
                             {{ __('Staff') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('staff-allocations.index')" :active="request()->routeIs('staff-allocations.*')">
+                            {{ __('Staff Allocations') }}
+                        </x-nav-link>
                         <x-nav-link :href="route('wards.index')" :active="request()->routeIs('wards.*')">
                             {{ __('Wards') }}
                         </x-nav-link>
