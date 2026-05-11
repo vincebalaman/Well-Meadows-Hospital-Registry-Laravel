@@ -34,6 +34,9 @@
                         <x-nav-link :href="route('patientbillings.index')" :active="request()->routeIs('patientbillings.*')">
                             {{ __('Patient Billings') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('beds.index')" :active="request()->routeIs('beds.*')">
+                            {{ __('Beds') }}
+                        </x-nav-link>
                     @endif
                 </div>
             </div>
