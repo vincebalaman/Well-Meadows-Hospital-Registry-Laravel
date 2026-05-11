@@ -6,6 +6,7 @@ use App\Http\Controllers\PatientController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\WardController;
 use App\Http\Controllers\StaffContractController;
+use App\Http\Controllers\StaffAllocationController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ClinicalRecordController;
 use App\Http\Controllers\PharmaceuticalsController;
@@ -36,6 +37,7 @@ Route::middleware(['auth', 'role:admin,staff'])->group(function () {
     Route::resource('staffs', StaffController::class);
     Route::resource('wards', WardController::class);
     Route::resource('contracts', StaffContractController::class);
+    Route::resource('staff-allocations', StaffAllocationController::class)->only(['index', 'create', 'store']);
     Route::get('appointments/medical-history', [AppointmentController::class, 'medicalHistory'])
         ->name('appointments.medical_history');
     Route::resource('appointments', AppointmentController::class);

@@ -40,8 +40,11 @@
                                     <td class="px-6 py-4 text-center">{{ $staff->sex }}</td>
                                     <td class="px-6 py-4 text-center">{{ $staff->dob->format('Y-m-d') }}</td>
                                     <td class="px-6 py-4 text-center">
-                                        <a href="{{ route('contracts.create', ['staff_no' => $staff->staff_no]) }}" class="text-indigo-600 hover:underline">
+                                        <a href="{{ route('contracts.create', ['staff_no' => $staff->staff_no]) }}" class="text-indigo-600 hover:underline mr-3">
                                             {{ __('Contract') }}
+                                        </a>
+                                        <a href="{{ route('staff-allocations.create', ['staff_no' => $staff->staff_no]) }}" class="text-indigo-600 hover:underline">
+                                            {{ __('Ward Assignment') }}
                                         </a>
                                         @if(in_array(auth()->user()->role, ['admin']))
                                             <form action="{{ route('staffs.destroy', $staff->staff_no) }}" method="POST" onsubmit="return confirm('Remove this staff member?');">
