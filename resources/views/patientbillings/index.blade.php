@@ -1,80 +1,75 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Patient Billing') }}
-            </h2>
-            <a href="{{ route('patientbillings.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                + Generate Bill
-            </a>
-        </div>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Patient Billing</h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            @if (session('success'))
-                <div class="mb-4 px-4 py-3 rounded-md bg-green-50 border border-green-200">
-                    <p class="text-sm text-green-800">{{ session('success') }}</p>
-                </div>
-            @endif
+            <div class="bg-white shadow-sm sm:rounded-lg p-6">
+                @if (session('success'))
+                    <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">{{ session('success') }}</div>
+                @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <table class="w-full text-sm text-center divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bill ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stay ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paid</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Outstanding</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                @if (auth()->user()?->role === 'staff')
+                    <a href="{{ route('patientbillings.create') }}"
+                       class="inline-block mb-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                        + New Bill
+                    </a>
+                @endif
+
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2">Bill #</th>
+                            <th class="px-4 py-2">Patient</th>
+                            <th class="px-4 py-2">Stay</th>
+                            <th class="px-4 py-2 text-right">Total</th>
+                            <th class="px-4 py-2 text-right">Paid</th>
+                            <th class="px-4 py-2 text-right">Outstanding</th>
+                            <th class="px-4 py-2">Status</th>
+                            <th class="px-4 py-2 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($bills as $bill)
+                            <tr class="border-b">
+                                <td class="px-4 py-2">#{{ $bill->bill_id }}</td>
+                                <td class="px-4 py-2">{{ $bill->first_name }} {{ $bill->last_name }}</td>
+                                <td class="px-4 py-2">#{{ $bill->stay_id }}</td>
+                                <td class="px-4 py-2 text-right">{{ number_format($bill->total_amount, 2) }}</td>
+                                <td class="px-4 py-2 text-right">{{ number_format($bill->amount_paid, 2) }}</td>
+                                <td class="px-4 py-2 text-right">{{ number_format($bill->outstanding, 2) }}</td>
+                                <td class="px-4 py-2">
+                                    @php
+                                        $cls = match($bill->payment_status) {
+                                            'Cleared' => 'bg-green-100 text-green-800',
+                                            'Partial' => 'bg-yellow-100 text-yellow-800',
+                                            default   => 'bg-gray-100 text-gray-800',
+                                        };
+                                    @endphp
+                                    <span class="px-2 py-1 rounded text-xs font-semibold {{ $cls }}">
+                                        {{ $bill->payment_status }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-2 text-right space-x-2">
+                                    <a href="{{ route('patientbillings.show', $bill->bill_id) }}" class="text-indigo-600 hover:underline">View</a>
+                                    @if (auth()->user()?->role === 'staff')
+                                        <a href="{{ route('patientbillings.edit', $bill->bill_id) }}" class="text-blue-600 hover:underline">Edit</a>
+                                        <form action="{{ route('patientbillings.destroy', $bill->bill_id) }}" method="POST" class="inline" onsubmit="return confirm('Delete this bill?')">
+                                            @csrf @method('DELETE')
+                                            <button class="text-red-600 hover:underline">Delete</button>
+                                        </form>
+                                    @endif
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($bills as $bill)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap font-medium">{{ $bill->bill_id }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $bill->first_name }} {{ $bill->last_name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $bill->stay_id }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ number_format($bill->original_invoice, 2) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ number_format($bill->amount_paid, 2) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ number_format($bill->outstanding_balance, 2) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $bill->payment_status === 'Cleared' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                            {{ $bill->payment_status }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                        <a href="{{ route('patientbillings.show', $bill->bill_id) }}" class="text-blue-600 hover:text-blue-900">
-                                            View
-                                        </a>
-                                        @if ($bill->outstanding_balance > 0)
-                                            <a href="{{ route('patientbillings.edit', $bill->bill_id) }}" class="text-indigo-600 hover:text-indigo-900 ml-4">
-                                                Record Payment
-                                            </a>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="8" class="px-6 py-4 text-center text-gray-500 italic">
-                                        No billing records found.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                        @empty
+                            <tr><td colspan="8" class="px-4 py-6 text-center text-gray-500">No bills yet.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
 
-            @if ($bills->hasPages())
-                <div class="mt-4">
-                    {{ $bills->links() }}
-                </div>
-            @endif
+                <div class="mt-4">{{ $bills->links() }}</div>
+            </div>
         </div>
     </div>
 </x-app-layout>

@@ -30,4 +30,9 @@ class PatientBilling extends Model
     {
         return $this->belongsTo(InPatientStays::class, 'stay_id', 'stay_id');
     }
+
+    public function getOutstandingAttribute()
+    {
+        return $this->total_amount - $this->amount_paid;
+    }
 }

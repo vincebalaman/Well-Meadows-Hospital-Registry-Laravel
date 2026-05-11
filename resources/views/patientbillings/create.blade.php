@@ -1,45 +1,10 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Generate Patient Bill') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <form method="POST" action="{{ route('patientbillings.store') }}">
-                        @csrf
-
-                        <div class="mb-6">
-                            <label for="stay_id" class="block font-medium text-sm text-gray-700 mb-2">
-                                {{ __('Select Admitted Stay') }} <span class="text-red-500">*</span>
-                            </label>
-                            <select name="stay_id" id="stay_id" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full" required>
-                                <option value="">-- Select Stay --</option>
-                                @foreach ($stays as $stay)
-                                    <option value="{{ $stay->stay_id }}" {{ old('stay_id') == $stay->stay_id ? 'selected' : '' }}>
-                                        {{ $stay->patient->first_name }} {{ $stay->patient->last_name }} (Stay {{ $stay->stay_id }}) - Ward: {{ $stay->ward->ward_name ?? 'Unknown' }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('stay_id')
-                                <span class="text-red-500 text-sm">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <div class="flex items-center justify-end gap-4">
-                            <a href="{{ route('patientbillings.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-300 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-400 focus:bg-gray-400 active:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                {{ __('Cancel') }}
-                            </a>
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-black uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                {{ __('Generate Bill') }}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <x-slot name="header"><h2 class="font-semibold text-xl text-gray-800">New Bill</h2></x-slot>
+    <div class="py-12 max-w-3xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white shadow-sm sm:rounded-lg p-6">
+            <form action="{{ route('patientbillings.store') }}" method="POST">
+                @include('patientbillings._create_form')
+            </form>
         </div>
     </div>
 </x-app-layout>

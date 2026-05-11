@@ -10,6 +10,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ClinicalRecordController;
 use App\Http\Controllers\PharmaceuticalsController;
 use App\Http\Controllers\InPatientStaysController;
+use App\Http\Controllers\PatientBillingController;
 use App\Http\Controllers\BedController;
 
 Route::get('/', function () {
@@ -44,6 +45,7 @@ Route::middleware(['auth', 'role:admin,staff'])->group(function () {
         ->name('inpatientstays.discharge');
     Route::resource('inpatientstays', InPatientStaysController::class);
     Route::resource('patientbillings', PatientBillingController::class);
+    Route::post('patientbillings/{id}/payment', [PatientBillingController::class, 'payment'])->name('patientbillings.payment');
     Route::get('beds/populate', [BedController::class, 'populate'])->name('beds.populate');
     Route::post('beds/populate', [BedController::class, 'storePopulate'])->name('beds.storePopulate');
     Route::get('beds/admit', [BedController::class, 'admit'])->name('beds.admit');
