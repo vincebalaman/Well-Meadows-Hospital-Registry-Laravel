@@ -51,7 +51,7 @@ class PharmaceuticalsController extends Controller
         ]);
 
         try {
-            DB::statement('CALL add_patient_medication(?, ?, ?, ?, ?)', [
+            DB::statement('CALL add_patient_medication(?::int, ?::varchar, ?::int, ?::date, ?::date)', [
                 $validated['stay_id'],
                 $validated['drug_no'],
                 $validated['units_per_day'],

@@ -19,7 +19,7 @@ class PatientBillingController extends Controller
             abort(403, 'Unauthorized.');
         }
 
-        $bills = DB::table('view_patient_billing_status as b')
+        $bills = DB::table('patient_billing as b')
             ->join('in_patient_stays as s', 'b.stay_id', '=', 's.stay_id')
             ->join('patients as p', 's.patient_no', '=', 'p.patient_no')
             ->select(
@@ -28,9 +28,9 @@ class PatientBillingController extends Controller
                 'p.patient_no',
                 'p.first_name',
                 'p.last_name',
-                'b.original_invoice',
+                'b.total_amount as original_invoice',
                 'b.amount_paid',
-                'b.outstanding_balance',
+                DB::raw('(b.total_amount - b.amount_paid) as outstanding_balance'),
                 'b.payment_status'
             )
             ->orderByDesc('b.bill_id')
@@ -71,7 +71,7 @@ class PatientBillingController extends Controller
         ]);
 
         try {
-            DB::statement('CALL generate_bill(?)', [
+            DB::statement('CALL generate_bill(?::int)', [
                 $validated['stay_id'],
             ]);
 
@@ -90,13 +90,13 @@ class PatientBillingController extends Controller
     /**
      * Display a specific bill.
      */
-    public function show(PatientBilling $patientBilling)
+    public function show($id)
     {
         if (!in_array(auth()->user()->role, ['admin', 'staff'])) {
             abort(403, 'Unauthorized.');
         }
 
-        $bill = PatientBilling::with('stay.patient')->findOrFail($patientBilling->bill_id);
+        $bill = PatientBilling::with('stay.patient')->findOrFail($id);
 
         return view('patientbillings.show', compact('bill'));
     }
@@ -104,13 +104,13 @@ class PatientBillingController extends Controller
     /**
      * Show the form for recording a payment.
      */
-    public function edit(PatientBilling $patientBilling)
+    public function edit($id)
     {
         if (!in_array(auth()->user()->role, ['admin', 'staff'])) {
             abort(403, 'Unauthorized.');
         }
 
-        $bill = PatientBilling::with('stay.patient')->findOrFail($patientBilling->bill_id);
+        $bill = PatientBilling::with('stay.patient')->findOrFail($id);
 
         return view('patientbillings.edit', compact('bill'));
     }
@@ -126,8 +126,8 @@ class PatientBillingController extends Controller
 
         try {
             // Call the procedure from your SQL (Module 5)
-            DB::statement('CALL record_payment(?, ?)', [
-                $id, 
+            DB::statement('CALL record_payment(?::int, ?::numeric)', [
+                $id,
                 $validated['amount_paid']
             ]);
 

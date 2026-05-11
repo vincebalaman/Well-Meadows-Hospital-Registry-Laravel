@@ -63,9 +63,9 @@
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $stay->expected_leave ?? 'N/A' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                                         @if ($stay->status !== 'discharged')
-                                            <form action="{{ route('inpatientstays.destroy', $stay->stay_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to discharge this patient?');" class="inline">
+                                            <form action="{{ route('inpatientstays.discharge') }}" method="POST" onsubmit="return confirm('Are you sure you want to discharge this patient?');" class="inline">
                                                 @csrf
-                                                @method('DELETE')
+                                                <input type="hidden" name="stay_id" value="{{ $stay->stay_id }}">
                                                 <button type="submit" class="text-red-600 hover:text-red-900 ml-4">
                                                     Discharge
                                                 </button>

@@ -54,7 +54,7 @@ class AppointmentController extends Controller
         ]);
 
         try {
-            DB::statement('CALL schedule_appointment(?, ?, ?, ?, ?)', [
+            DB::statement('CALL schedule_appointment(?::varchar, ?::varchar, ?::varchar, ?::timestamp, ?::varchar)', [
                 $validated['app_no'],
                 $validated['patient_no'],
                 $validated['consultant_staff_no'],

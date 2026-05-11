@@ -58,7 +58,7 @@ class InPatientStaysController extends Controller
         ]);
 
         try {
-            DB::statement('CALL request_ward_admission(?, ?, ?)', [
+            DB::statement('CALL request_ward_admission(?::varchar, ?::int, ?::int)', [
                 $validated['patient_no'],
                 $validated['ward_id'],
                 $validated['expected_duration'],
@@ -112,30 +112,44 @@ class InPatientStaysController extends Controller
             abort(403, 'Unauthorized.');
         }
 
+        return $this->discharge($inPatientStays);
+    }
+
+    /**
+     * Discharge the specified inpatient stay.
+     */
+    public function discharge(Request $request)
+    {
+        if (!in_array(auth()->user()->role, ['admin', 'staff'])) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $validated = $request->validate([
+            'stay_id' => 'required|integer|exists:in_patient_stays,stay_id',
+        ]);
+
+        $inPatientStays = InPatientStays::findOrFail($validated['stay_id']);
+
         try {
-            DB::statement('CALL discharge_patient(?)', [
-                $inPatientStays->stay_id,
-            ]);
+            DB::transaction(function () use ($inPatientStays) {
+                $inPatientStays->update([
+                    'actual_leave' => now()->toDateString(),
+                    'status' => 'discharged',
+                ]);
 
-            $updated = DB::table('in_patient_stays')
-                ->where('stay_id', $inPatientStays->stay_id)
-                ->where('status', 'discharged')
-                ->exists();
-
-            if (! $updated) {
-                DB::table('in_patient_stays')
-                    ->where('stay_id', $inPatientStays->stay_id)
-                    ->update([
-                        'actual_leave' => DB::raw('CURRENT_DATE'),
-                        'status' => 'discharged',
-                    ]);
-            }
+                if ($inPatientStays->bed_no) {
+                    DB::table('beds')
+                        ->where('bed_id', $inPatientStays->bed_no)
+                        ->update(['status' => 'Available']);
+                }
+            });
 
             return redirect()->route('inpatientstays.index')
                 ->with('success', 'Patient discharged successfully!');
 
         } catch (\Exception $e) {
             Log::error('Patient discharge failed: ' . $e->getMessage());
+
             return redirect()->back()
                 ->withErrors(['database_error' => 'Database Error: ' . $e->getMessage()]);
         }

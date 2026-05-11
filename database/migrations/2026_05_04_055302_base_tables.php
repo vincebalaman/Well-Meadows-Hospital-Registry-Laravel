@@ -146,7 +146,7 @@ return new class extends Migration
                 description TEXT,
                 qty_in_stock INT DEFAULT 0,
                 reorder_level INT,
-                cost_per_unit DECIMAL(10,2),
+                cost_per_unit DECIMAL(10,2)
             );
 
             CREATE TABLE Pharmaceuticals (
