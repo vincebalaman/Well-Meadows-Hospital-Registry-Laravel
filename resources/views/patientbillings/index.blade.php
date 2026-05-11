@@ -48,11 +48,11 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                        <a href="{{ route('patientbillings.show', ['patientbilling' => $bill->bill_id]) }}" class="text-blue-600 hover:text-blue-900">
+                                        <a href="{{ route('patientbillings.show', $bill->bill_id) }}" class="text-blue-600 hover:text-blue-900">
                                             View
                                         </a>
                                         @if ($bill->outstanding_balance > 0)
-                                            <a href="{{ route('patientbillings.edit', ['patientbilling' => $bill->bill_id]) }}" class="text-indigo-600 hover:text-indigo-900 ml-4">
+                                            <a href="{{ route('patientbillings.edit', $bill->bill_id) }}" class="text-indigo-600 hover:text-indigo-900 ml-4">
                                                 Record Payment
                                             </a>
                                         @endif

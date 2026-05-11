@@ -52,7 +52,7 @@ class ClinicalRecordController extends Controller
         ]);
 
         try {
-            DB::statement('CALL record_examination_outcome(?, ?, ?, ?)', [
+            DB::statement('CALL record_examination_outcome(?::varchar, ?::varchar, ?::varchar, ?::varchar)', [
                 $validated['app_no'],
                 $validated['diagnosis'],
                 $validated['treatment_plan'],

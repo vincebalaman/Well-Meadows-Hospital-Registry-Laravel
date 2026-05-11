@@ -40,6 +40,8 @@ Route::middleware(['auth', 'role:admin,staff'])->group(function () {
     Route::resource('appointments', AppointmentController::class);
     Route::resource('clinicalrecords', ClinicalRecordController::class);
     Route::resource('pharmaceuticals', PharmaceuticalsController::class);
+    Route::post('inpatientstays/discharge', [InPatientStaysController::class, 'discharge'])
+        ->name('inpatientstays.discharge');
     Route::resource('inpatientstays', InPatientStaysController::class);
     Route::resource('patientbillings', PatientBillingController::class);
 });
