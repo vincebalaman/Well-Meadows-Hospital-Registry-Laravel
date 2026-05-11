@@ -147,7 +147,6 @@ return new class extends Migration
                 qty_in_stock INT DEFAULT 0,
                 reorder_level INT,
                 cost_per_unit DECIMAL(10,2),
-                supplier_no VARCHAR(10) REFERENCES Suppliers(supplier_no)
             );
 
             CREATE TABLE Pharmaceuticals (

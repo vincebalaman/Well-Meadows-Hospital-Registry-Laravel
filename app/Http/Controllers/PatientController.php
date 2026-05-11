@@ -10,6 +10,22 @@ use Illuminate\Support\Facades\DB;
 class PatientController extends Controller
 {
     /**
+     * Display comprehensive patient record.
+     */
+    public function comprehensiveRecord(Patient $patient)
+    {
+        if (!in_array(auth()->user()->role, ['admin', 'staff', 'patient'])) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $records = DB::table('view_comprehensive_patient_record')
+            ->where('patient_no', $patient->patient_no)
+            ->get();
+
+        return view('patients.comprehensive_record', compact('patient', 'records'));
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index()

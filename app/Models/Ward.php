@@ -44,4 +44,9 @@ class Ward extends Model
     {
         return $this->hasMany(Bed::class, 'ward_id', 'ward_id');
     }
+
+    public function getNameAttribute(): string
+    {
+        return $this->ward_name;
+    }
 }

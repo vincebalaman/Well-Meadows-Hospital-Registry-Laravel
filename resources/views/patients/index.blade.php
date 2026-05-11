@@ -35,6 +35,13 @@
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $patient->clinic_no }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                                         @if(in_array(auth()->user()->role, ['admin', 'staff']))
+                                            <a href="{{ route('patients.comprehensiveRecord', $patient->patient_no) }}" class="text-indigo-600 hover:text-indigo-900">
+                                                View Record
+                                            </a>
+                                            <br>
+                                            <a href="{{ route('pharmaceuticals.create') }}" class="text-green hover:text-green-900 ml-4">
+                                                Add Medication
+                                            </a>
                                             <form action="{{ route('patients.destroy', $patient->patient_no) }}" method="POST" onsubmit="return confirm('Are you sure? This will also remove the Next of Kin.');" class="inline">
                                                 @csrf
                                                 @method('DELETE')

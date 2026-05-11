@@ -14,6 +14,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             JobPositionSeeder::class,
             LocalDoctorSeeder::class,
+            SuppliesSeeder::class,
+            PharmaceuticalsSeeder::class,
             // Add other seeders here (e.g., StaffSeeder, WardSeeder)
         ]);
     }
