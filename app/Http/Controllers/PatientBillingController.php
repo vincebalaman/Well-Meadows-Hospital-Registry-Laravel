@@ -28,9 +28,9 @@ class PatientBillingController extends Controller
                 'p.patient_no',
                 'p.first_name',
                 'p.last_name',
-                'b.total_amount as original_invoice',
+                'b.total_amount',
                 'b.amount_paid',
-                DB::raw('(b.total_amount - b.amount_paid) as outstanding_balance'),
+                DB::raw('(b.total_amount - b.amount_paid) as outstanding'),
                 'b.payment_status'
             )
             ->orderByDesc('b.bill_id')
@@ -111,30 +111,82 @@ class PatientBillingController extends Controller
         }
 
         $bill = PatientBilling::with('stay.patient')->findOrFail($id);
+        $stays = InPatientStays::with('patient', 'ward')
+            ->whereNull('actual_leave')
+            ->where('status', '!=', 'discharged')
+            ->orderByDesc('date_placed_waiting')
+            ->get();
+        $statuses = ['Pending', 'Partial', 'Cleared'];
 
-        return view('patientbillings.edit', compact('bill'));
+        return view('patientbillings.edit', compact('bill', 'stays', 'statuses'));
     }
 
     /**
      * Record a payment against a bill.
      */
-    public function update(Request $request, $id)
+    public function payment(Request $request, $id)
     {
+        if (!in_array(auth()->user()->role, ['admin', 'staff'])) {
+            abort(403, 'Unauthorized.');
+        }
+
         $validated = $request->validate([
-            'amount_paid' => 'required|numeric|min:0.01',
+            'amount' => 'required|numeric|min:0.01',
         ]);
 
         try {
             // Call the procedure from your SQL (Module 5)
             DB::statement('CALL record_payment(?::int, ?::numeric)', [
                 $id,
-                $validated['amount_paid']
+                $validated['amount']
             ]);
 
-            return redirect()->route('patientbillings.index')
+            return redirect()->route('patientbillings.show', $id)
                 ->with('success', 'Payment recorded and status updated!');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Update the bill details.
+     */
+    public function update(Request $request, $id)
+    {
+        if (!in_array(auth()->user()->role, ['admin', 'staff'])) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $validated = $request->validate([
+            'stay_id' => 'required|integer|exists:in_patient_stays,stay_id',
+            'total_amount' => 'required|numeric|min:0',
+            'amount_paid' => 'required|numeric|min:0',
+            'payment_status' => 'required|in:Pending,Partial,Cleared',
+        ]);
+
+        // Validate that amount_paid doesn't exceed total_amount
+        if ($validated['amount_paid'] > $validated['total_amount']) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['amount_paid' => 'Amount paid cannot exceed total amount.']);
+        }
+
+        try {
+            $bill = PatientBilling::findOrFail($id);
+            $bill->update([
+                'stay_id' => $validated['stay_id'],
+                'total_amount' => $validated['total_amount'],
+                'amount_paid' => $validated['amount_paid'],
+                'payment_status' => $validated['payment_status'],
+            ]);
+
+            return redirect()->route('patientbillings.index')
+                ->with('success', 'Bill updated successfully!');
+        } catch (\Exception $e) {
+            Log::error('Bill update failed: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['database_error' => 'Database Error: ' . $e->getMessage()]);
         }
     }
 

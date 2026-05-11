@@ -1,80 +1,47 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Billing Details') }}
-            </h2>
-            <a href="{{ route('patientbillings.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                Back to Billing
-            </a>
-        </div>
+        <h2 class="font-semibold text-xl text-gray-800">Bill #{{ $bill->bill_id }}</h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <div class="grid grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Bill ID</label>
-                            <p class="text-lg font-semibold">{{ $bill->bill_id }}</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Stay ID</label>
-                            <p class="text-lg">{{ $bill->stay_id }}</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Patient</label>
-                            <p class="text-lg">{{ $bill->stay->patient->first_name }} {{ $bill->stay->patient->last_name }}</p>
-                            <p class="text-sm text-gray-600">ID: {{ $bill->stay->patient->patient_no }}</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Status</label>
-                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold {{ $bill->payment_status === 'Cleared' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                {{ $bill->payment_status }}
-                            </span>
-                        </div>
-                    </div>
+    <div class="py-12 max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        @if (session('success'))
+            <div class="p-3 bg-green-100 text-green-800 rounded">{{ session('success') }}</div>
+        @endif
 
-                    <div class="grid grid-cols-3 gap-6 mb-6">
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-500">Original Invoice</p>
-                            <p class="text-2xl font-semibold">{{ number_format($bill->total_amount, 2) }}</p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-500">Amount Paid</p>
-                            <p class="text-2xl font-semibold">{{ number_format($bill->amount_paid, 2) }}</p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-500">Outstanding</p>
-                            <p class="text-2xl font-semibold">{{ number_format($bill->total_amount - $bill->amount_paid, 2) }}</p>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Date Placed to Ward</label>
-                            <p class="text-lg">{{ $bill->stay->date_placed_ward ?? 'N/A' }}</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Actual Leave</label>
-                            <p class="text-lg">{{ $bill->stay->actual_leave ?? 'N/A' }}</p>
-                        </div>
-                    </div>
-
-                    @php
-                        $outstanding = (($bill->total_amount ?? 0) - ($bill->amount_paid ?? 0));
-                    @endphp
-
-                    @if ($outstanding > 0)
-                        <div class="mt-6">
-                            <a href="{{ route('patientbillings.edit', $bill->bill_id) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                Record Payment
-                            </a>
-                        </div>
-                    @endif
-                </div>
-            </div>
+        <div class="bg-white shadow-sm sm:rounded-lg p-6 space-y-2">
+            <p><strong>Patient:</strong> {{ $bill->stay?->patient?->full_name ?? '—' }}</p>
+            <p><strong>Stay:</strong> #{{ $bill->stay_id }}</p>
+            <p><strong>Total:</strong> {{ number_format($bill->total_amount, 2) }}</p>
+            <p><strong>Paid:</strong> {{ number_format($bill->amount_paid, 2) }}</p>
+            <p><strong>Outstanding:</strong> {{ number_format($bill->outstanding, 2) }}</p>
+            <p><strong>Status:</strong>
+                @php
+                    $cls = match($bill->payment_status) {
+                        'Cleared' => 'bg-green-100 text-green-800',
+                        'Partial' => 'bg-yellow-100 text-yellow-800',
+                        default   => 'bg-gray-100 text-gray-800',
+                    };
+                @endphp
+                <span class="px-2 py-1 rounded text-xs font-semibold {{ $cls }}">{{ $bill->payment_status }}</span>
+            </p>
         </div>
+
+        @if (auth()->user()?->role === 'staff' && $bill->payment_status !== 'Cleared')
+            <div class="bg-white shadow-sm sm:rounded-lg p-6">
+                <h3 class="font-semibold mb-3">Record a Payment</h3>
+                <form action="{{ route('patientbillings.payment', $bill) }}" method="POST" class="flex gap-2 items-end">
+                    @csrf
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium">Amount</label>
+                        <input type="number" step="0.01" min="0.01" name="amount"
+                               class="w-full mt-1 border-gray-300 rounded" required>
+                        @error('amount') <p class="text-red-600 text-sm">{{ $message }}</p> @enderror
+                    </div>
+                    <button class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Record</button>
+                </form>
+            </div>
+        @endif
+
+        <a href="{{ route('patientbillings.index') }}" class="text-indigo-600 hover:underline">← Back to all bills</a>
     </div>
 </x-app-layout>

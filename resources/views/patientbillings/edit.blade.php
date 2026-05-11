@@ -1,11 +1,11 @@
 <x-app-layout>
-    <form method="POST" action="{{ route('patientbillings.update', $bill->bill_id) }}">
-        @csrf
-        @method('PUT')
-        <label>Amount to Pay</label>
-        <input type="number" name="amount_paid" step="0.01" max="{{ $bill->outstanding_balance }}">
-        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">
-            Submit Payment
-        </button>
-    </form>
+    <x-slot name="header"><h2 class="font-semibold text-xl text-gray-800">Edit Bill #{{ $bill->bill_id }}</h2></x-slot>
+    <div class="py-12 max-w-3xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white shadow-sm sm:rounded-lg p-6">
+            <form action="{{ route('patientbillings.update', $bill) }}" method="POST">
+                @method('PUT')
+                @include('patientbillings._form')
+            </form>
+        </div>
+    </div>
 </x-app-layout>
