@@ -47,7 +47,7 @@ class StaffContractController extends Controller
         $request->validate([
             'staff_no'    => 'required|string|exists:staff,staff_no',
             'position_id' => 'required|integer|exists:job_positions,position_id',
-            'type'        => 'required|in:F,P', // F for Full-time, P for Part-time
+            'type'        => 'required|in:P,T', // P for Permanent, T for Temporary
             'hours'       => 'required|numeric|min:0|max:40',
         ]);
 
