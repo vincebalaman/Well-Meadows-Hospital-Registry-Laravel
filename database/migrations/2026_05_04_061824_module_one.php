@@ -46,6 +46,27 @@ return new class extends Migration
             END;
             $$;
 
+            CREATE OR REPLACE VIEW view_comprehensive_patient_record AS
+            SELECT 
+                p.patient_no,
+                p.first_name || ' ' || p.last_name AS patient_name,
+                p.dob,
+                p.sex,
+                cr.diagnosis AS latest_diagnosis,
+                cr.treatment_plan,
+                s.name AS prescribed_drug,
+                ph.dosage,
+                pm.start_date AS medication_start,
+                pm.finish_date AS medication_end,
+                a.app_date_time AS last_appointment
+            FROM Patients p
+            LEFT JOIN Appointments a ON p.patient_no = a.patient_no
+            LEFT JOIN Clinical_Records cr ON a.app_no = cr.app_no
+            LEFT JOIN In_Patient_Stays ips ON p.patient_no = ips.patient_no
+            LEFT JOIN Patient_Medication pm ON ips.stay_id = pm.stay_id
+            LEFT JOIN Pharmaceuticals ph ON pm.drug_no = ph.drug_no
+            LEFT JOIN Supplies s ON ph.drug_no = s.item_no;
+
             CREATE OR REPLACE PROCEDURE request_ward_admission(
                 p_patient_no VARCHAR(10),
                 p_ward_id INT,
@@ -110,6 +131,7 @@ return new class extends Migration
         DB::unprepared("
             DROP PROCEDURE IF EXISTS register_patient;
             DROP PROCEDURE IF EXISTS add_patient_medication;
+            DROP VIEW IF EXISTS view_comprehensive_patient_record CASCADE;
             DROP PROCEDURE IF EXISTS request_ward_admission;
             DROP PROCEDURE IF EXISTS discharge_patient;
         ");
