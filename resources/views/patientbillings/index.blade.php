@@ -10,9 +10,10 @@
                     <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">{{ session('success') }}</div>
                 @endif
 
-                @if (auth()->user()?->role === 'staff')
+                {{-- Updated: Allowed both staff and admin to create new bills --}}
+                @if (auth()->check() && in_array(auth()->user()->role, ['staff', 'admin']))
                     <a href="{{ route('patientbillings.create') }}"
-                       class="inline-block mb-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                       class="inline-block mb-4 px-4 py-2 bg-indigo-600 text-black rounded hover:bg-indigo-700">
                         + New Bill
                     </a>
                 @endif
@@ -53,7 +54,9 @@
                                 </td>
                                 <td class="px-4 py-2 text-right space-x-2">
                                     <a href="{{ route('patientbillings.show', $bill->bill_id) }}" class="text-indigo-600 hover:underline">View</a>
-                                    @if (auth()->user()?->role === 'staff')
+                                    
+                                    {{-- Updated: Allowed both staff and admin to Edit and Delete --}}
+                                    @if (auth()->check() && in_array(auth()->user()->role, ['staff', 'admin']))
                                         <a href="{{ route('patientbillings.edit', $bill->bill_id) }}" class="text-blue-600 hover:underline">Edit</a>
                                         <form action="{{ route('patientbillings.destroy', $bill->bill_id) }}" method="POST" class="inline" onsubmit="return confirm('Delete this bill?')">
                                             @csrf @method('DELETE')

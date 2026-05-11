@@ -87,6 +87,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <div class="mt-6 flex gap-2">
-    <button class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Save</button>
+    <button class="px-4 py-2 bg-indigo-600 text-black rounded hover:bg-indigo-700">Save</button>
     <a href="{{ route('patientbillings.index') }}" class="px-4 py-2 bg-gray-200 rounded">Cancel</a>
 </div>
