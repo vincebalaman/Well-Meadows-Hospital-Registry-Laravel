@@ -30,5 +30,10 @@ class Patient extends Model
         // hasOne(RelatedModel, foreign_key_on_other_table, local_key_on_this_table)
         return $this->hasOne(NextOfKin::class, 'patient_no', 'patient_no');
     }
+
+    public function user()
+    {
+        return $table->belongsTo(User::class, 'user_id');
+    }
 }
 

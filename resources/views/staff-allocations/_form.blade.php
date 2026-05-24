@@ -53,6 +53,6 @@
 
     <div class="flex justify-end gap-2 pt-4 border-t">
         <a href="{{ route('staff-allocations.index') }}" class="px-4 py-2 bg-gray-200 rounded">Cancel</a>
-        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded">Save Assignment</button>
+        <button type="submit" class="px-4 py-2 bg-indigo-600 text-black rounded">Save Assignment</button>
     </div>
 </div>

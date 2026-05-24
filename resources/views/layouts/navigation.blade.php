@@ -15,9 +15,25 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('patients.index')" :active="request()->routeIs('patients.*')">
-                        {{ __('Patients') }}
-                    </x-nav-link>
+                    @if(auth()->user()->isPatient())
+                        @if(auth()->user()->patient)
+                            <!-- PASS THE MODEL INSTANCE OR ITS UNIQUE DATABASE ID ROW HERE -->
+                            @if(auth()->user()?->patient?->id)
+                                <x-nav-link :href="route('patients.comprehensiveRecord', auth()->user()->patient->id)" :active="request()->routeIs('patients.comprehensiveRecord')">
+                                    {{ __('My Comprehensive Record') }}
+                                </x-nav-link>
+                            @endif
+                        @else
+                            <x-nav-link :href="route('patients.create')" :active="request()->routeIs('patients.create')">
+                                {{ __('Complete Registration') }}
+                            </x-nav-link>
+                        @endif
+                    @else
+                        <!-- Admins and Staff go directly to the global overview list -->
+                        <x-nav-link :href="route('patients.index')" :active="request()->routeIs('patients.index')">
+                            {{ __('Patient Directory Index') }}
+                        </x-nav-link>
+                    @endif
                     @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'staff']))
                         <x-nav-link :href="route('inpatientstays.index')" :active="request()->routeIs('inpatientstays.*')">
                             {{ __('Inpatient Stays') }}
@@ -25,9 +41,11 @@
                         <x-nav-link :href="route('beds.index')" :active="request()->routeIs('beds.*')">
                             {{ __('Beds') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('staffs.index')" :active="request()->routeIs('staffs.*')">
-                            {{ __('Staff') }}
-                        </x-nav-link>
+                        @if(auth()->check() && in_array(auth()->user()->role, ['admin']))
+                            <x-nav-link :href="route('staffs.index')" :active="request()->routeIs('staffs.*')">
+                                {{ __('Staff') }}
+                            </x-nav-link>
+                        @endif
                         <x-nav-link :href="route('staff-allocations.index')" :active="request()->routeIs('staff-allocations.*')">
                             {{ __('Staff Allocations') }}
                         </x-nav-link>

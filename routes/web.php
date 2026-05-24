@@ -13,14 +13,11 @@ use App\Http\Controllers\PharmaceuticalsController;
 use App\Http\Controllers\InPatientStaysController;
 use App\Http\Controllers\PatientBillingController;
 use App\Http\Controllers\BedController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return view('welcome');
 });
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth', 'role:admin,staff,patient')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -28,6 +25,7 @@ Route::middleware('auth', 'role:admin,staff,patient')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('patients/{patient}/comprehensive-record', [PatientController::class, 'comprehensiveRecord'])->name('patients.comprehensiveRecord');
     Route::resource('patients', PatientController::class);
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {

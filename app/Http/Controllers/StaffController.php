@@ -6,6 +6,7 @@ use App\Models\Staff;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class StaffController extends Controller
 {
@@ -14,6 +15,14 @@ class StaffController extends Controller
      */
     public function index()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        // Staff and Patients are not allowed to browse the full index directory of personnel
+        if (in_array($user->role, ['staff', 'patient'])) {
+            abort(403, 'Unauthorized access to the staff directory.');
+        }
+
         $staffMembers = Staff::all();
         
         return view('staffs.index', compact('staffMembers'));
@@ -24,12 +33,17 @@ class StaffController extends Controller
      */
     public function create()
     {
-        if (!in_array(auth()->user()->role, ['admin', 'staff'])) {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if (!in_array($user->role, ['admin', 'staff'])) {
             abort(403, 'Unauthorized.');
         }
 
-        // If you have a JobPosition model, fetch it here to populate a dropdown
-        // $positions = JobPosition::all(); 
+        // Enforce constraint: If a staff user already has a bound registry record, stop them from creating duplicates
+        if ($user->role === 'staff' && $user->staff()->exists()) {
+            return redirect()->route('dashboard')->with('error', 'Your staff registry profile has already been completed.');
+        }
 
         return view('staffs.create');
     }
@@ -39,18 +53,31 @@ class StaffController extends Controller
      */
     public function store(Request $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if (!in_array($user->role, ['admin', 'staff'])) {
+            abort(403, 'Unauthorized operation.');
+        }
+
+        // Double check entry redundancy at execution runtime for staff accounts
+        if ($user->role === 'staff' && $user->staff()->exists()) {
+            return redirect()->route('dashboard')->with('error', 'Profile submission blocked: Single entry limit reached.');
+        }
+
         $request->validate([
             'staff_no'   => 'required|string|max:10|unique:staff,staff_no',
             'first_name' => 'required|string|max:50',
             'last_name'  => 'required|string|max:50',
             'dob'        => 'required|date',
-            'sex'        => 'required|in:M,F', // Matches your CHECK constraint
-            'nin'        => 'required|string|max:15|unique:staff,nin', // Matches UNIQUE constraint
+            'sex'        => 'required|in:M,F', 
+            'nin'        => 'required|string|max:15|unique:staff,nin', 
         ]);
 
         try {
-            // 2. Call the Stored Procedure
-            // Order must match: s_no, s_fname, s_lname, s_addr, s_tel, s_dob, s_sex, s_nin
+            DB::beginTransaction();
+
+            // Call the Stored Procedure
             DB::statement("CALL add_staff_member(?, ?, ?, ?, ?, ?, ?, ?)", [
                 $request->staff_no,
                 $request->first_name,
@@ -62,15 +89,28 @@ class StaffController extends Controller
                 $request->nin
             ]);
 
+            // Safely map the newly created record row back to the authenticated user account table column
+            $newlyCreatedStaff = Staff::where('staff_no', $request->staff_no)->first();
+            if ($newlyCreatedStaff && $user->role === 'staff') {
+                $newlyCreatedStaff->user_id = $user->id;
+                $newlyCreatedStaff->save();
+            }
+
+            DB::commit();
+
+            if ($user->role === 'staff') {
+                return redirect()->route('dashboard')->with('success', 'Your institutional staff operational profile has been linked and registered successfully!');
+            }
+
             return redirect()->route('staffs.index')->with('success', 'Staff member added successfully!');
 
         } catch (\Exception $e) {
-            // Log the error for debugging
+            DB::rollBack();
             Log::error("Staff Registration Failed: " . $e->getMessage());
 
             return redirect()->back()
                 ->withInput()
-                ->withErrors(['database_error' => 'Could not save staff member. Please check your data.']);
+                ->withErrors(['database_error' => 'Could not save staff member. Please check your data: ' . $e->getMessage()]);
         }
     }
 
@@ -79,7 +119,19 @@ class StaffController extends Controller
      */
     public function show(Staff $staff)
     {
-        //
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        // Security check: Staff profiles are locked to their own entry unless the caller is an Admin
+        if ($user->role === 'staff' && $user->staff?->staff_no !== $staff->staff_no) {
+            abort(403, 'Unauthorized access to separate staff information files.');
+        }
+
+        if ($user->role === 'patient') {
+            abort(403, 'Patients cannot view technical staff files.');
+        }
+
+        return view('staffs.show', compact('staff'));
     }
 
     /**
@@ -87,7 +139,19 @@ class StaffController extends Controller
      */
     public function edit(Staff $staff)
     {
-        //
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        // Staff can only update metrics mapped directly to their unique employee ID
+        if ($user->role === 'staff' && $user->staff?->staff_no !== $staff->staff_no) {
+            abort(403, 'Unauthorized context modification attempt.');
+        }
+
+        if ($user->role === 'patient') {
+            abort(403, 'Unauthorized.');
+        }
+
+        return view('staffs.edit', compact('staff'));
     }
 
     /**
@@ -95,7 +159,17 @@ class StaffController extends Controller
      */
     public function update(Request $request, Staff $staff)
     {
-        //
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($user->role === 'staff' && $user->staff?->staff_no !== $staff->staff_no) {
+            abort(403, 'Unauthorized update payload transmission.');
+        }
+
+        // Implement validation & update code logic here...
+        
+        return redirect()->route($user->role === 'staff' ? 'dashboard' : 'staffs.index')
+            ->with('success', 'Staff member registry tracking data updated successfully.');
     }
 
     /**

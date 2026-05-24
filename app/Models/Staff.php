@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Staff extends Model
 {
@@ -36,5 +38,11 @@ class Staff extends Model
     {
         // A staff member might have multiple contracts over time (history)
         return $this->hasMany(StaffContract::class, 'staff_no', 'staff_no');
+    }
+
+    public function user(): BelongsTo
+    {
+        // Ensure you are using strings inside relationships, NOT variables!
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

@@ -10,6 +10,22 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    public function isAdmin(): bool { return $this->role === 'admin'; }
+    public function isStaff(): bool { return $this->role === 'staff'; }
+    public function isPatient(): bool { return $this->role === 'patient'; }
+
+    // Relationship to Patient profile
+    public function patient()
+    {
+        return $this->hasOne(Patient::class, 'user_id');
+    }
+
+    // Relationship to Staff profile
+    public function staff()
+    {
+        return $this->hasOne(Staff::class, 'user_id');
+    }
+    
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
@@ -46,10 +62,5 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-    public function isStaff(): bool
-    {
-        return $this->role === 'staff';
     }
 }
