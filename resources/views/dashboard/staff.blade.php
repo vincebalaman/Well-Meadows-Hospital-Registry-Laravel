@@ -15,8 +15,8 @@
                         <p><strong>Employee Matrix ID:</strong> {{ $staffInfo->staff_no }}</p>
                         <p><strong>Employee First Name:</strong> {{ $staffInfo->first_name}}</p>
                         <p><strong>Employee Last Name:</strong> {{ $staffInfo->last_name}}</p>
-                        <div class="mt-4 p-2 bg-gray-50 border border-gray-300 rounded text-sm text-gray-600">
-                            *Secure Staff Authorization context active. Administrative procedures accessible via internal navigation links.
+                        <div class="mt-4 p-2 bg-gray-50 border border-gray-300 rounded text-sm text-gray-600 text-center">
+                            Secure Staff Authorization context active. Administrative procedures accessible via internal navigation links.
                         </div>
                     </div>
                 @endif
