@@ -76,4 +76,12 @@ php artisan migrate
 After after migrating you need to run the seeding to populate the tables with constant datas:
 ```bash
 php artisan db:seed
+
+```
+**2. NPM**
+After after migrating and seeding, install compiled assets to make sure all utility classes are loaded
+```bash
+npm install
+
+npm run build
 ```
