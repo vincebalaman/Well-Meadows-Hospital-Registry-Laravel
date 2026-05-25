@@ -20,12 +20,20 @@
                             <td class="px-4 py-2">{{ $a->staff?->full_name }}</td>
                             <td class="px-4 py-2">{{ $a->stay?->patient?->full_name }} (#{{ $a->stay_id }})</td>
                             <td class="px-4 py-2">{{ $a->role_description }}</td>
-                            <td class="px-4 py-2 text-right space-x-2">
-                                <a href="{{ route('staff-assignments.edit', $a) }}" class="text-blue-600 hover:underline">Edit</a>
-                                <form action="{{ route('staff-assignments.destroy', $a) }}" method="POST" class="inline" onsubmit="return confirm('Remove?')">
-                                    @csrf @method('DELETE')
-                                    <button class="text-red-600 hover:underline">Delete</button>
-                                </form>
+                            <td class="px-4 py-2 text-right">
+                                <div class="flex items-center justify-end gap-2 flex-wrap">
+                                    <a href="{{ route('staff-assignments.edit', $a) }}" class="btn-secondary flex items-center gap-1 px-3 py-1.5 text-xs">
+                                        <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z"/></svg>
+                                        Edit
+                                    </a>
+                                    <form action="{{ route('staff-assignments.destroy', $a) }}" method="POST" class="inline" onsubmit="return confirm('Remove?')">
+                                        @csrf @method('DELETE')
+                                        <button class="btn-danger flex items-center gap-1 px-3 py-1.5 text-xs">
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

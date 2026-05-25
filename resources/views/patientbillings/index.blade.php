@@ -41,7 +41,7 @@
                                 <td class="px-4 py-2">{{ $bill->first_name }} {{ $bill->last_name }}</td>
                                 <td class="px-4 py-2">#{{ $bill->stay_id }}</td>
                                 <td class="px-4 py-2 text-right">{{ number_format($bill->total_amount, 2) }}</td>
-                                
+
                                 {{-- Hide metrics data matching the column layout definitions --}}
                                 @if(auth()->check() && auth()->user()->role !== 'patient')
                                     <td class="px-4 py-2 text-right">{{ number_format($bill->amount_paid, 2) }}</td>
@@ -60,18 +60,26 @@
                                         {{ $bill->payment_status }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-2 text-right space-x-2">
-                                    {{-- All legitimate profiles can access the explicit show function --}}
-                                    <a href="{{ route('patientbillings.show', $bill->bill_id) }}" class="text-indigo-600 hover:underline">View</a>
-                                    
-                                    {{-- Keep administrative structural manipulation isolated --}}
-                                    @if (auth()->check() && in_array(auth()->user()->role, ['staff', 'admin']))
-                                        <a href="{{ route('patientbillings.edit', $bill->bill_id) }}" class="text-blue-600 hover:underline">Edit</a>
-                                        <form action="{{ route('patientbillings.destroy', $bill->bill_id) }}" method="POST" class="inline" onsubmit="return confirm('Delete this bill?')">
-                                            @csrf @method('DELETE')
-                                            <button class="text-red-600 hover:underline">Delete</button>
-                                        </form>
-                                    @endif
+                                <td class="px-4 py-2 text-right">
+                                    <div class="flex items-center justify-end gap-2 flex-wrap">
+                                        <a href="{{ route('patientbillings.show', $bill->bill_id) }}" class="btn-secondary flex items-center gap-1 px-3 py-1.5 text-xs">
+                                            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12H9m12 0A9 9 0 1 1 3 12a9 9 0 0 1 18 0z"/></svg>
+                                            View
+                                        </a>
+                                        @if (auth()->check() && in_array(auth()->user()->role, ['staff', 'admin']))
+                                            <a href="{{ route('patientbillings.edit', $bill->bill_id) }}" class="btn-secondary flex items-center gap-1 px-3 py-1.5 text-xs">
+                                                <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z"/></svg>
+                                                Edit
+                                            </a>
+                                            <form action="{{ route('patientbillings.destroy', $bill->bill_id) }}" method="POST" class="inline" onsubmit="return confirm('Delete this bill?')">
+                                                @csrf @method('DELETE')
+                                                <button class="btn-danger flex items-center gap-1 px-3 py-1.5 text-xs">
+                                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @empty

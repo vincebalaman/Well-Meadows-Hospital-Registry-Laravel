@@ -38,17 +38,24 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ optional($appointment->consultant)->first_name }} {{ optional($appointment->consultant)->last_name }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $appointment->app_date_time }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $appointment->exam_room ?? '-' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-y-2">
-                                        <a href="{{ route('clinicalrecords.create', ['app_no' => $appointment->app_no]) }}" class="text-green-600 hover:text-green-900">
-                                            {{ __('Record Outcome') }}
-                                        </a>
-                                        @if(in_array(auth()->user()->role, ['admin']))
-                                            <form action="{{ route('appointments.destroy', $appointment->app_no) }}" method="POST" onsubmit="return confirm('Remove this appointment?');" class="mt-2">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:underline">{{ __('Delete') }}</button>
-                                            </form>
-                                        @endif
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <div class="flex items-center justify-center gap-2 flex-wrap">
+                                            <a href="{{ route('clinicalrecords.create', ['app_no' => $appointment->app_no]) }}" class="btn-secondary flex items-center gap-1 px-3 py-1.5 text-xs">
+                                                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                                                {{ __('Record Outcome') }}
+                                            </a>
+                                            @if(in_array(auth()->user()->role, ['admin']))
+                                                <form action="{{ route('appointments.destroy', $appointment->app_no) }}" method="POST" onsubmit="return confirm('Remove this appointment?');" class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn-danger flex items-center gap-1 px-3 py-1.5 text-xs">
+                                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                                                        {{ __('Delete') }}
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>

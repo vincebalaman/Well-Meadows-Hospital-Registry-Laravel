@@ -50,13 +50,15 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4">
-                                        <div class="flex justify-center space-x-4">
-                                            
+                                        <div class="flex justify-center">
                                             @if(auth()->user()->role === 'admin')
-                                                <form action="{{ route('wards.destroy', $ward->ward_id) }}" method="POST" onsubmit="return confirm('Delete this ward?');">
+                                                <form action="{{ route('wards.destroy', $ward->ward_id) }}" method="POST" onsubmit="return confirm('Delete this ward?');" class="inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:underline">Delete</button>
+                                                    <button type="submit" class="btn-danger flex items-center gap-1 px-3 py-1.5 text-xs">
+                                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                                                        Delete
+                                                    </button>
                                                 </form>
                                             @endif
                                         </div>
