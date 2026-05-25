@@ -26,6 +26,12 @@ Route::middleware('auth', 'role:admin,staff,patient')->group(function () {
     Route::get('patients/{patient}/comprehensive-record', [PatientController::class, 'comprehensiveRecord'])->name('patients.comprehensiveRecord');
     Route::resource('patients', PatientController::class);
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Allow patients to view only their own billing records while still letting staff/admin use the full billing resource.
+    Route::get('patientbillings', [PatientBillingController::class, 'index'])->name('patientbillings.index');
+    Route::get('patientbillings/{id}', [PatientBillingController::class, 'show'])
+        ->whereNumber('id')
+        ->name('patientbillings.show');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -44,7 +50,7 @@ Route::middleware(['auth', 'role:admin,staff'])->group(function () {
     Route::post('inpatientstays/discharge', [InPatientStaysController::class, 'discharge'])
         ->name('inpatientstays.discharge');
     Route::resource('inpatientstays', InPatientStaysController::class);
-    Route::resource('patientbillings', PatientBillingController::class);
+    Route::resource('patientbillings', PatientBillingController::class)->except(['index', 'show']);
     Route::post('patientbillings/{id}/payment', [PatientBillingController::class, 'payment'])->name('patientbillings.payment');
     Route::get('beds/populate', [BedController::class, 'populate'])->name('beds.populate');
     Route::post('beds/populate', [BedController::class, 'storePopulate'])->name('beds.storePopulate');
