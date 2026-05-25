@@ -84,6 +84,10 @@
                             <span>{{ __('Staff') }}</span>
                         </a>
                     @endif
+                    <a href="{{ route('staff-assignments.index') }}" class="{{ $navBaseClasses }} {{ request()->routeIs('staff-assignments.*') ? $navActiveClasses : $navInactiveClasses }}">
+                        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white text-sm text-cyan-700">✦</span>
+                        <span>{{ __('Staff Assignments') }}</span>
+                    </a>
                     <a href="{{ route('staff-allocations.index') }}" class="{{ $navBaseClasses }} {{ request()->routeIs('staff-allocations.*') ? $navActiveClasses : $navInactiveClasses }}">
                         <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white text-sm text-cyan-700">⇄</span>
                         <span>{{ __('Staff Allocations') }}</span>

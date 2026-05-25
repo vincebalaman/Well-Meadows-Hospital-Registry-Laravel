@@ -17,8 +17,8 @@
                     @forelse ($assignments as $a)
                         <tr class="border-b">
                             <td class="px-4 py-2">{{ $a->assignment_id }}</td>
-                            <td class="px-4 py-2">{{ $a->staff?->full_name }}</td>
-                            <td class="px-4 py-2">{{ $a->stay?->patient?->full_name }} (#{{ $a->stay_id }})</td>
+                            <td class="px-4 py-2">{{ optional($a->staff)->first_name }} {{ optional($a->staff)->last_name }}</td>
+                            <td class="px-4 py-2">{{ optional($a->stay?->patient)->first_name }} {{ optional($a->stay?->patient)->last_name }} (#{{ $a->stay_id }})</td>
                             <td class="px-4 py-2">{{ $a->role_description }}</td>
                             <td class="px-4 py-2 text-right">
                                 <div class="flex items-center justify-end gap-2 flex-wrap">
