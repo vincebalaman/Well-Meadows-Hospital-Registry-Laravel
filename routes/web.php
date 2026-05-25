@@ -14,6 +14,7 @@ use App\Http\Controllers\InPatientStaysController;
 use App\Http\Controllers\PatientBillingController;
 use App\Http\Controllers\BedController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\StaffPatientAssignmentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -36,6 +37,7 @@ Route::middleware(['auth', 'role:admin,staff'])->group(function () {
     Route::resource('wards', WardController::class);
     Route::resource('contracts', StaffContractController::class);
     Route::resource('staff-allocations', StaffAllocationController::class)->only(['index', 'create', 'store']);
+    Route::resource('staff-assignments', StaffPatientAssignmentController::class);
     Route::get('appointments/medical-history', [AppointmentController::class, 'medicalHistory'])
         ->name('appointments.medical_history');
     Route::resource('appointments', AppointmentController::class);

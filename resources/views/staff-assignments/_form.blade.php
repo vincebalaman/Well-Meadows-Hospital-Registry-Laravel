@@ -7,7 +7,7 @@
             @foreach ($staff as $s)
                 <option value="{{ $s->staff_no }}"
                     @selected(old('staff_no', $assignment->staff_no ?? '') === $s->staff_no)>
-                    {{ $s->staff_no }} — {{ $s->full_name }}
+                    {{ $s->staff_no }} — {{ $s->first_name }} {{ $s->last_name }}
                 </option>
             @endforeach
         </select>
@@ -20,7 +20,7 @@
             @foreach ($stays as $stay)
                 <option value="{{ $stay->stay_id }}"
                     @selected((int) old('stay_id', $assignment->stay_id ?? 0) === $stay->stay_id)>
-                    Stay #{{ $stay->stay_id }} — {{ $stay->patient?->full_name }}
+                    Stay #{{ $stay->stay_id }} — {{ optional($stay->patient)->first_name }} {{ optional($stay->patient)->last_name }}
                 </option>
             @endforeach
         </select>
