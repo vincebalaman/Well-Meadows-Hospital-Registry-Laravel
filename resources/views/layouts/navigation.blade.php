@@ -1,144 +1,118 @@
-<nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
-                    </a>
-                </div>
+@php
+    $navBaseClasses = 'flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200';
+    $navActiveClasses = 'bg-cyan-500/15 text-white shadow-[0_18px_40px_-28px_rgba(34,211,238,0.55)]';
+    $navInactiveClasses = 'text-slate-300 hover:bg-white/5 hover:text-white';
+@endphp
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                    @if(auth()->user()->isPatient())
-                        @if(auth()->user()->patient)
-                            <!-- PASS THE MODEL INSTANCE OR ITS UNIQUE DATABASE ID ROW HERE -->
-                            @if(auth()->user()?->patient?->id)
-                                <x-nav-link :href="route('patients.comprehensiveRecord', auth()->user()->patient->id)" :active="request()->routeIs('patients.comprehensiveRecord')">
-                                    {{ __('My Comprehensive Record') }}
-                                </x-nav-link>
-                            @endif
-                        @else
-                            <x-nav-link :href="route('patients.create')" :active="request()->routeIs('patients.create')">
-                                {{ __('Complete Registration') }}
-                            </x-nav-link>
-                        @endif
-                    @else
-                        <!-- Admins and Staff go directly to the global overview list -->
-                        <x-nav-link :href="route('patients.index')" :active="request()->routeIs('patients.index')">
-                            {{ __('Patient Directory Index') }}
-                        </x-nav-link>
-                    @endif
-                    <x-nav-link :href="route('patientbillings.index')" :active="request()->routeIs('patientbillings.*')">
-                        {{ __('Patient Billings') }}
-                    </x-nav-link>
-                    @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'staff']))
-                        <x-nav-link :href="route('inpatientstays.index')" :active="request()->routeIs('inpatientstays.*')">
-                            {{ __('Inpatient Stays') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('beds.index')" :active="request()->routeIs('beds.*')">
-                            {{ __('Beds') }}
-                        </x-nav-link>
-                        @if(auth()->check() && in_array(auth()->user()->role, ['admin']))
-                            <x-nav-link :href="route('staffs.index')" :active="request()->routeIs('staffs.*')">
-                                {{ __('Staff') }}
-                            </x-nav-link>
-                        @endif
-                        <x-nav-link :href="route('staff-allocations.index')" :active="request()->routeIs('staff-allocations.*')">
-                            {{ __('Staff Allocations') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('wards.index')" :active="request()->routeIs('wards.*')">
-                            {{ __('Wards') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('appointments.index')" :active="request()->routeIs('appointments.*')">
-                            {{ __('Appointments') }}
-                        </x-nav-link>
-                    @endif
-                </div>
+<nav x-data="{ open: false }" class="app-sidebar">
+    <div class="flex items-center justify-between px-5 py-4 lg:px-6 lg:py-6">
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-cyan-400/15 text-cyan-200">
+                <x-application-logo class="block h-7 w-7 fill-current" />
             </div>
-
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
-
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
-
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
-
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
+            <div>
+                <p class="text-[0.65rem] font-semibold uppercase tracking-[0.35em] text-cyan-200/90">Well Meadows</p>
+                <p class="text-base font-semibold text-white">Hospital Registry</p>
             </div>
+        </a>
 
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-        </div>
+        <button @click="open = ! open" class="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 p-2 text-slate-200 lg:hidden">
+            <svg class="h-5 w-5" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
     </div>
 
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden lg:block">
+        <div class="px-5 pb-5 lg:px-6">
+            <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-4">
+                <p class="text-[0.65rem] uppercase tracking-[0.35em] text-slate-400">Signed in as</p>
+                <p class="mt-3 text-sm font-semibold text-white">{{ Auth::user()->name }}</p>
+                <p class="text-sm text-slate-300">{{ Auth::user()->email }}</p>
+                <p class="mt-3 inline-flex rounded-full bg-cyan-500/10 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-cyan-100">
+                    {{ ucfirst(Auth::user()->role) }}
+                </p>
+            </div>
         </div>
 
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+        <div class="px-3 pb-4 lg:px-4">
+            <div class="space-y-1">
+                <a href="{{ route('dashboard') }}" class="{{ $navBaseClasses }} {{ request()->routeIs('dashboard') ? $navActiveClasses : $navInactiveClasses }}">
+                    <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sm">⌂</span>
+                    <span>{{ __('Dashboard') }}</span>
+                </a>
+
+                @if(auth()->user()->isPatient())
+                    @if(auth()->user()->patient)
+                        @if(auth()->user()?->patient?->id)
+                            <a href="{{ route('patients.comprehensiveRecord', auth()->user()->patient->id) }}" class="{{ $navBaseClasses }} {{ request()->routeIs('patients.comprehensiveRecord') ? $navActiveClasses : $navInactiveClasses }}">
+                                <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sm">⟡</span>
+                                <span>{{ __('My Comprehensive Record') }}</span>
+                            </a>
+                        @endif
+                    @else
+                        <a href="{{ route('patients.create') }}" class="{{ $navBaseClasses }} {{ request()->routeIs('patients.create') ? $navActiveClasses : $navInactiveClasses }}">
+                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sm">+</span>
+                            <span>{{ __('Complete Registration') }}</span>
+                        </a>
+                    @endif
+                @else
+                    <a href="{{ route('patients.index') }}" class="{{ $navBaseClasses }} {{ request()->routeIs('patients.index') ? $navActiveClasses : $navInactiveClasses }}">
+                        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sm">◌</span>
+                        <span>{{ __('Patient Directory') }}</span>
+                    </a>
+                @endif
+
+                <a href="{{ route('patientbillings.index') }}" class="{{ $navBaseClasses }} {{ request()->routeIs('patientbillings.*') ? $navActiveClasses : $navInactiveClasses }}">
+                    <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sm">₿</span>
+                    <span>{{ __('Patient Billings') }}</span>
+                </a>
+
+                @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'staff']))
+                    <a href="{{ route('inpatientstays.index') }}" class="{{ $navBaseClasses }} {{ request()->routeIs('inpatientstays.*') ? $navActiveClasses : $navInactiveClasses }}">
+                        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sm">✚</span>
+                        <span>{{ __('Inpatient Stays') }}</span>
+                    </a>
+                    <a href="{{ route('beds.index') }}" class="{{ $navBaseClasses }} {{ request()->routeIs('beds.*') ? $navActiveClasses : $navInactiveClasses }}">
+                        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sm">□</span>
+                        <span>{{ __('Beds') }}</span>
+                    </a>
+                    @if(auth()->check() && in_array(auth()->user()->role, ['admin']))
+                        <a href="{{ route('staffs.index') }}" class="{{ $navBaseClasses }} {{ request()->routeIs('staffs.*') ? $navActiveClasses : $navInactiveClasses }}">
+                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sm">☻</span>
+                            <span>{{ __('Staff') }}</span>
+                        </a>
+                    @endif
+                    <a href="{{ route('staff-allocations.index') }}" class="{{ $navBaseClasses }} {{ request()->routeIs('staff-allocations.*') ? $navActiveClasses : $navInactiveClasses }}">
+                        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sm">⇄</span>
+                        <span>{{ __('Staff Allocations') }}</span>
+                    </a>
+                    <a href="{{ route('wards.index') }}" class="{{ $navBaseClasses }} {{ request()->routeIs('wards.*') ? $navActiveClasses : $navInactiveClasses }}">
+                        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sm">⌂</span>
+                        <span>{{ __('Wards') }}</span>
+                    </a>
+                    <a href="{{ route('appointments.index') }}" class="{{ $navBaseClasses }} {{ request()->routeIs('appointments.*') ? $navActiveClasses : $navInactiveClasses }}">
+                        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sm">✦</span>
+                        <span>{{ __('Appointments') }}</span>
+                    </a>
+                @endif
             </div>
+        </div>
 
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
+        <div class="border-t border-white/10 px-3 pb-4 pt-4 lg:px-4">
+            <a href="{{ route('profile.edit') }}" class="{{ $navBaseClasses }} {{ request()->routeIs('profile.edit') ? $navActiveClasses : $navInactiveClasses }}">
+                <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sm">⚙</span>
+                <span>{{ __('Profile') }}</span>
+            </a>
 
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Log Out') }}
-                    </x-responsive-nav-link>
-                </form>
-            </div>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="{{ $navBaseClasses }} w-full text-left text-slate-300 hover:bg-rose-500/10 hover:text-rose-100">
+                    <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sm">↩</span>
+                    <span>{{ __('Log Out') }}</span>
+                </button>
+            </form>
         </div>
     </div>
 </nav>
