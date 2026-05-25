@@ -15,11 +15,12 @@ class PatientBillingController extends Controller
      */
     public function index()
     {
-        if (!in_array(auth()->user()->role, ['admin', 'staff'])) {
+        $user = auth()->user();
+        if (!in_array($user->role, ['admin', 'staff', 'patient'])) {
             abort(403, 'Unauthorized.');
         }
 
-        $bills = DB::table('patient_billing as b')
+        $query = DB::table('patient_billing as b')
             ->join('in_patient_stays as s', 'b.stay_id', '=', 's.stay_id')
             ->join('patients as p', 's.patient_no', '=', 'p.patient_no')
             ->select(
@@ -32,8 +33,17 @@ class PatientBillingController extends Controller
                 'b.amount_paid',
                 DB::raw('(b.total_amount - b.amount_paid) as outstanding'),
                 'b.payment_status'
-            )
-            ->orderByDesc('b.bill_id')
+            );
+
+        if ($user->role === 'patient') {
+            $patientNo = $user->patient?->patient_no;
+            if (!$patientNo) {
+                abort(403, 'Unauthorized.');
+            }
+            $query->where('p.patient_no', $patientNo);
+        }
+
+        $bills = $query->orderByDesc('b.bill_id')
             ->paginate(20);
 
         return view('patientbillings.index', compact('bills'));
@@ -55,6 +65,20 @@ class PatientBillingController extends Controller
             ->get();
 
         return view('patientbillings.create', compact('stays'));
+    }
+
+    /**
+     * Return the current authenticated patient's number or null.
+     */
+    private function currentPatientNumber()
+    {
+        $user = auth()->user();
+
+        if ($user->role !== 'patient') {
+            return null;
+        }
+
+        return $user->patient?->patient_no;
     }
 
     /**
@@ -92,11 +116,19 @@ class PatientBillingController extends Controller
      */
     public function show($id)
     {
-        if (!in_array(auth()->user()->role, ['admin', 'staff'])) {
+        $user = auth()->user();
+        if (!in_array($user->role, ['admin', 'staff', 'patient'])) {
             abort(403, 'Unauthorized.');
         }
 
         $bill = PatientBilling::with('stay.patient')->findOrFail($id);
+
+        if ($user->role === 'patient') {
+            $patientNo = $this->currentPatientNumber();
+            if (!$patientNo || $bill->stay?->patient?->patient_no !== $patientNo) {
+                abort(403, 'Unauthorized.');
+            }
+        }
 
         return view('patientbillings.show', compact('bill'));
     }
