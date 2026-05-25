@@ -35,20 +35,24 @@
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $patient->clinic_no }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                                         @if(in_array(auth()->user()->role, ['admin', 'staff']))
-                                            <a href="{{ route('patients.comprehensiveRecord', $patient->patient_no) }}" class="text-indigo-600 hover:text-indigo-900">
-                                                View Record
-                                            </a>
-                                            <br>
-                                            <a href="{{ route('pharmaceuticals.create') }}" class="text-green hover:text-green-900 ml-4">
-                                                Add Medication
-                                            </a>
-                                            <form action="{{ route('patients.destroy', $patient->patient_no) }}" method="POST" onsubmit="return confirm('Are you sure? This will also remove the Next of Kin.');" class="inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900 ml-4">
-                                                    Delete
-                                                </button>
-                                            </form>
+                                            <div class="flex items-center gap-2 justify-center">
+                                                <a href="{{ route('patients.comprehensiveRecord', $patient->patient_no) }}" class="btn-secondary flex items-center gap-1 px-3 py-1.5 text-xs">
+                                                    <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12H9m12 0A9 9 0 1 1 3 12a9 9 0 0 1 18 0z"/></svg>
+                                                    View
+                                                </a>
+                                                <a href="{{ route('pharmaceuticals.create') }}" class="btn-secondary flex items-center gap-1 px-3 py-1.5 text-xs">
+                                                    <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                                                    Add Meds
+                                                </a>
+                                                <form action="{{ route('patients.destroy', $patient->patient_no) }}" method="POST" onsubmit="return confirm('Are you sure? This will also remove the Next of Kin.');" class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn-danger flex items-center gap-1 px-3 py-1.5 text-xs">
+                                                        <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            </div>
                                         @endif
                                     </td>
                                 </tr>

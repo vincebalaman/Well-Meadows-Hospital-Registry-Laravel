@@ -4,19 +4,19 @@
 
 @layer base {
     :root {
-        color-scheme: dark;
+        color-scheme: light;
     }
 
     body {
-        @apply min-h-screen bg-slate-950 text-slate-100 antialiased;
+        @apply min-h-screen bg-slate-50 text-slate-800 antialiased;
         background-image:
-            radial-gradient(circle at top left, rgba(34, 211, 238, 0.22), transparent 22%),
-            radial-gradient(circle at top right, rgba(59, 130, 246, 0.16), transparent 18%),
-            linear-gradient(135deg, #020617, #111827 50%, #0f172a);
+            radial-gradient(circle at top left, rgba(34, 211, 238, 0.12), transparent 20%),
+            radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent 18%),
+            linear-gradient(135deg, #f8fbfd, #eef7ff 48%, #f8fafc);
     }
 
     * {
-        @apply selection:bg-cyan-400/30 selection:text-white;
+        @apply selection:bg-cyan-200 selection:text-slate-900;
     }
 }
 
@@ -26,18 +26,31 @@
     }
 
     .app-sidebar {
-        @apply border-b border-white/10 bg-slate-950/85 backdrop-blur-xl lg:min-h-screen lg:w-72 lg:border-b-0 lg:border-r;
+        @apply border-b border-slate-200 bg-white/95 backdrop-blur-xl lg:min-h-screen lg:w-72 lg:border-b-0 lg:border-r;
     }
 
     .app-content {
-        @apply flex flex-1 flex-col;
+        @apply flex flex-1 flex-col bg-slate-50;
     }
 
     .app-header {
-        @apply border-b border-white/10 bg-slate-950/65 backdrop-blur-xl;
+        @apply border-b border-slate-200 bg-white/90 backdrop-blur-xl;
     }
 
     .app-main {
-        @apply px-4 pb-10 pt-6 sm:px-6 lg:px-8;
+        @apply bg-slate-50 px-4 pb-10 pt-6 sm:px-6 lg:px-8;
+    }
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center rounded-xl bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2;
+    }
+
+    .btn-danger {
+        @apply inline-flex items-center justify-center rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2;
     }
 }
+

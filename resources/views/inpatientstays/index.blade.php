@@ -66,7 +66,8 @@
                                             <form action="{{ route('inpatientstays.discharge') }}" method="POST" onsubmit="return confirm('Are you sure you want to discharge this patient?');" class="inline">
                                                 @csrf
                                                 <input type="hidden" name="stay_id" value="{{ $stay->stay_id }}">
-                                                <button type="submit" class="text-red-600 hover:text-red-900 ml-4">
+                                                <button type="submit" class="btn-danger flex items-center gap-1 px-3 py-1.5 text-xs">
+                                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
                                                     Discharge
                                                 </button>
                                             </form>
