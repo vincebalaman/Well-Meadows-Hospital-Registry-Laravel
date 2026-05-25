@@ -1,3 +1,43 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        color-scheme: dark;
+    }
+
+    body {
+        @apply min-h-screen bg-slate-950 text-slate-100 antialiased;
+        background-image:
+            radial-gradient(circle at top left, rgba(34, 211, 238, 0.22), transparent 22%),
+            radial-gradient(circle at top right, rgba(59, 130, 246, 0.16), transparent 18%),
+            linear-gradient(135deg, #020617, #111827 50%, #0f172a);
+    }
+
+    * {
+        @apply selection:bg-cyan-400/30 selection:text-white;
+    }
+}
+
+@layer components {
+    .app-shell {
+        @apply flex min-h-screen flex-col lg:flex-row;
+    }
+
+    .app-sidebar {
+        @apply border-b border-white/10 bg-slate-950/85 backdrop-blur-xl lg:min-h-screen lg:w-72 lg:border-b-0 lg:border-r;
+    }
+
+    .app-content {
+        @apply flex flex-1 flex-col;
+    }
+
+    .app-header {
+        @apply border-b border-white/10 bg-slate-950/65 backdrop-blur-xl;
+    }
+
+    .app-main {
+        @apply px-4 pb-10 pt-6 sm:px-6 lg:px-8;
+    }
+}
