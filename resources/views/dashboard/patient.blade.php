@@ -35,6 +35,8 @@
                         {{-- Patient Demographics Panel --}}
                         <div class="bg-gray-50 p-4 rounded-lg grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                             <div><strong>Patient No:</strong> {{ $patient->patient_no ?? 'N/A' }}</div>
+                            <div><strong>Patient First Name:</strong> {{ $patient->first_name ?? 'N/A' }}</div>
+                            <div><strong>Patient Last Name:</strong> {{ $patient->last_name ?? 'N/A' }}</div>
                             <div><strong>Contact:</strong> {{ $patient->tel_no ?? 'N/A' }}</div>
                             <div><strong>Address:</strong> {{ $patient->address ?? 'N/A' }}</div>
                         </div>

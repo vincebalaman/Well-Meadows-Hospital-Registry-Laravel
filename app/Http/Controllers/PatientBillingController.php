@@ -15,11 +15,14 @@ class PatientBillingController extends Controller
      */
     public function index()
     {
-        if (!in_array(auth()->user()->role, ['admin', 'staff'])) {
+        // Allow admins, staff, and patients
+        if (!in_array(auth()->user()->role, ['admin', 'staff', 'patient'])) {
             abort(403, 'Unauthorized.');
         }
 
-        $bills = DB::table('patient_billing as b')
+        $user = auth()->user();
+
+        $query = DB::table('patient_billing as b')
             ->join('in_patient_stays as s', 'b.stay_id', '=', 's.stay_id')
             ->join('patients as p', 's.patient_no', '=', 'p.patient_no')
             ->select(
@@ -32,9 +35,18 @@ class PatientBillingController extends Controller
                 'b.amount_paid',
                 DB::raw('(b.total_amount - b.amount_paid) as outstanding'),
                 'b.payment_status'
-            )
-            ->orderByDesc('b.bill_id')
-            ->paginate(20);
+            );
+
+        // CONDITIONAL STRATEGY: If the user is a patient, limit the view strictly to their data
+        if ($user->role === 'patient') {
+            // Ensure the user actually has an associated patient record first
+            if (!$user->patient) {
+                abort(404, 'Patient record profile not found.');
+            }
+            $query->where('p.patient_no', $user->patient->patient_no);
+        }
+
+        $bills = $query->orderByDesc('b.bill_id')->paginate(20);
 
         return view('patientbillings.index', compact('bills'));
     }
@@ -92,11 +104,19 @@ class PatientBillingController extends Controller
      */
     public function show($id)
     {
-        if (!in_array(auth()->user()->role, ['admin', 'staff'])) {
+        if (!in_array(auth()->user()->role, ['admin', 'staff', 'patient'])) {
             abort(403, 'Unauthorized.');
         }
 
         $bill = PatientBilling::with('stay.patient')->findOrFail($id);
+        $user = auth()->user();
+
+        // CONDITIONAL SECURITY: Prevent patients from typing an arbitrary bill ID into the URL bar
+        if ($user->role === 'patient') {
+            if (!$user->patient || $bill->stay->patient_no !== $user->patient->patient_no) {
+                abort(403, 'Unauthorized access to this billing record.');
+            }
+        }
 
         return view('patientbillings.show', compact('bill'));
     }
@@ -135,7 +155,6 @@ class PatientBillingController extends Controller
         ]);
 
         try {
-            // Call the procedure from your SQL (Module 5)
             DB::statement('CALL record_payment(?::int, ?::numeric)', [
                 $id,
                 $validated['amount']
@@ -164,7 +183,6 @@ class PatientBillingController extends Controller
             'payment_status' => 'required|in:Pending,Partial,Cleared',
         ]);
 
-        // Validate that amount_paid doesn't exceed total_amount
         if ($validated['amount_paid'] > $validated['total_amount']) {
             return redirect()->back()
                 ->withInput()

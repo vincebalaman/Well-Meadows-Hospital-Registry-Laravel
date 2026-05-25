@@ -34,6 +34,9 @@
                             {{ __('Patient Directory Index') }}
                         </x-nav-link>
                     @endif
+                    <x-nav-link :href="route('patientbillings.index')" :active="request()->routeIs('patientbillings.*')">
+                        {{ __('Patient Billings') }}
+                    </x-nav-link>
                     @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'staff']))
                         <x-nav-link :href="route('inpatientstays.index')" :active="request()->routeIs('inpatientstays.*')">
                             {{ __('Inpatient Stays') }}
@@ -54,9 +57,6 @@
                         </x-nav-link>
                         <x-nav-link :href="route('appointments.index')" :active="request()->routeIs('appointments.*')">
                             {{ __('Appointments') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('patientbillings.index')" :active="request()->routeIs('patientbillings.*')">
-                            {{ __('Patient Billings') }}
                         </x-nav-link>
                     @endif
                 </div>

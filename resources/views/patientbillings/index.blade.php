@@ -10,7 +10,7 @@
                     <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">{{ session('success') }}</div>
                 @endif
 
-                {{-- Updated: Allowed both staff and admin to create new bills --}}
+                {{-- Allowed both staff and admin to create new bills --}}
                 @if (auth()->check() && in_array(auth()->user()->role, ['staff', 'admin']))
                     <a href="{{ route('patientbillings.create') }}"
                        class="inline-block mb-4 px-4 py-2 bg-indigo-600 text-black rounded hover:bg-indigo-700">
@@ -25,8 +25,11 @@
                             <th class="px-4 py-2">Patient</th>
                             <th class="px-4 py-2">Stay</th>
                             <th class="px-4 py-2 text-right">Total</th>
-                            <th class="px-4 py-2 text-right">Paid</th>
-                            <th class="px-4 py-2 text-right">Outstanding</th>
+                            {{-- Hide structural metrics if the logged-in user is a patient --}}
+                            @if(auth()->check() && auth()->user()->role !== 'patient')
+                                <th class="px-4 py-2 text-right">Paid</th>
+                                <th class="px-4 py-2 text-right">Outstanding</th>
+                            @endif
                             <th class="px-4 py-2">Status</th>
                             <th class="px-4 py-2 text-right">Actions</th>
                         </tr>
@@ -38,8 +41,13 @@
                                 <td class="px-4 py-2">{{ $bill->first_name }} {{ $bill->last_name }}</td>
                                 <td class="px-4 py-2">#{{ $bill->stay_id }}</td>
                                 <td class="px-4 py-2 text-right">{{ number_format($bill->total_amount, 2) }}</td>
-                                <td class="px-4 py-2 text-right">{{ number_format($bill->amount_paid, 2) }}</td>
-                                <td class="px-4 py-2 text-right">{{ number_format($bill->outstanding, 2) }}</td>
+                                
+                                {{-- Hide metrics data matching the column layout definitions --}}
+                                @if(auth()->check() && auth()->user()->role !== 'patient')
+                                    <td class="px-4 py-2 text-right">{{ number_format($bill->amount_paid, 2) }}</td>
+                                    <td class="px-4 py-2 text-right">{{ number_format($bill->outstanding, 2) }}</td>
+                                @endif
+
                                 <td class="px-4 py-2">
                                     @php
                                         $cls = match($bill->payment_status) {
@@ -53,9 +61,10 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-2 text-right space-x-2">
+                                    {{-- All legitimate profiles can access the explicit show function --}}
                                     <a href="{{ route('patientbillings.show', $bill->bill_id) }}" class="text-indigo-600 hover:underline">View</a>
                                     
-                                    {{-- Updated: Allowed both staff and admin to Edit and Delete --}}
+                                    {{-- Keep administrative structural manipulation isolated --}}
                                     @if (auth()->check() && in_array(auth()->user()->role, ['staff', 'admin']))
                                         <a href="{{ route('patientbillings.edit', $bill->bill_id) }}" class="text-blue-600 hover:underline">Edit</a>
                                         <form action="{{ route('patientbillings.destroy', $bill->bill_id) }}" method="POST" class="inline" onsubmit="return confirm('Delete this bill?')">
@@ -66,7 +75,11 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="8" class="px-4 py-6 text-center text-gray-500">No bills yet.</td></tr>
+                            <tr>
+                                <td colspan="{{ auth()->check() && auth()->user()->role === 'patient' ? '6' : '8' }}" class="px-4 py-6 text-center text-gray-500">
+                                    No bills yet.
+                                </td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>

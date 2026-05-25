@@ -44,13 +44,17 @@ Route::middleware(['auth', 'role:admin,staff'])->group(function () {
     Route::post('inpatientstays/discharge', [InPatientStaysController::class, 'discharge'])
         ->name('inpatientstays.discharge');
     Route::resource('inpatientstays', InPatientStaysController::class);
-    Route::resource('patientbillings', PatientBillingController::class);
+    Route::resource('patientbillings', PatientBillingController::class)->except(['index', 'show']);
     Route::post('patientbillings/{id}/payment', [PatientBillingController::class, 'payment'])->name('patientbillings.payment');
     Route::get('beds/populate', [BedController::class, 'populate'])->name('beds.populate');
     Route::post('beds/populate', [BedController::class, 'storePopulate'])->name('beds.storePopulate');
     Route::get('beds/admit', [BedController::class, 'admit'])->name('beds.admit');
     Route::post('beds/admit', [BedController::class, 'storeAdmit'])->name('beds.storeAdmit');
     Route::resource('beds', BedController::class);
+});
+
+Route::middleware('auth', 'role:admin,staff,patient')->group(function () {
+    Route::resource('patientbillings', PatientBillingController::class)->only(['index', 'show']);
 });
 
 require __DIR__.'/auth.php';
