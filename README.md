@@ -1,11 +1,16 @@
 # Well-Meadows-Hospital-Registry
 Registry Website as a Requirement for our Web Systems and Information Management courses
 
---more description about the project--
+# System Requirements
+**PHP Version:** PHP 8.2.12
+**Laravel Version:** 12.57.0
+**Database Requirement:** PostgreSQL (PgAdmin)
+**Required Tools:** Visual Studio Code, Git
+
 
 # Instructions for the members
 
-## First set up
+## First set up 
 
 Follow these commands when first setting up the project, if you've already done this step and you already have a local repository, proceed to <a href="#branch">Branch Instructions</a> after setting up you can then follow the <a href="#setup">Postgresql setup instructions</a>
 
@@ -76,12 +81,41 @@ php artisan migrate
 After after migrating you need to run the seeding to populate the tables with constant datas:
 ```bash
 php artisan db:seed
-
 ```
-**2. NPM**
+
+## RUN INSTRUCTIONS
+
+**1. NPM**
 After after migrating and seeding, install compiled assets to make sure all utility classes are loaded
 ```bash
 npm install
 
 npm run build
 ```
+
+**1. Serve**
+After after migrating and seeding, install compiled assets to make sure all utility classes are loaded
+```bash
+php artisan serve
+```
+
+## Test Accounts
+**Roles**
+
+**Admin:**
+email: admin@test.com
+password: 12345678
+
+**Staff:**
+email: staff@test.com
+password: 12345678
+
+**Patient:**
+email: patient@test.com
+password: 12345678
+
+## Known Limitations
+
+**Patient Billing**
+
+Calculable amounts must be set for the automatic solving of the patient billing.
